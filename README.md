@@ -35,15 +35,32 @@ Real-world platforms like Spotify and YouTube combine two main approaches. **Col
 - `target_energy` (0–1): the user's ideal energy level. Songs score higher the closer they are to it.
 - `likes_acoustic` (True/False): whether to reward songs with high acousticness.
 
-Some prompts to answer:
+**Scoring algorithm**
 
-- What features does each `Song` use in your system
-  - For example: genre, mood, energy, tempo
-- What information does your `UserProfile` store
-- How does your `Recommender` compute a score for each song
-- How do you choose which songs to recommend
+`score_song` checks each song against the user's profile and adds points for every match:
 
-You can include a simple diagram or bullet list if helpful.
+| Feature | Points | Rule |
+|---|---|---|
+| Genre match | +3.0 | The song's genre exactly equals `favorite_genre` |
+| Mood match | +2.0 | The song's mood exactly equals `favorite_mood` |
+| Energy closeness | 0 to +1.0 | `1 - abs(song.energy - target_energy)`, so a perfect match earns 1.0 |
+| Acoustic bonus | +0.5 | Only when `likes_acoustic` is True and the song's acousticness is 0.6 or higher |
+
+The weights keep the priority order fixed: a genre match always outweighs a mood match, and a mood match always outweighs any energy score. The highest possible score is 6.5. Every point added also records a reason, such as "matches your favorite genre: folk (+3.0)", and those reasons become the song's explanation.
+
+**Choosing recommendations**
+
+`recommend_songs` scores every song in `data/songs.csv`, sorts them from highest to lowest score, and returns the top `k` (5 by default), each with its score and explanation. For testing, `main.py` builds a realistic random profile by copying the genre, mood and acoustic preference of a random song and shifting its energy by up to ±0.1.
+
+**Expected biases and limitations**
+
+- **Genre dominates.** A 3-point genre match outweighs everything else, so users keep getting their usual genre and rarely discover anything new. This is a small-scale version of a filter bubble.
+- **Exact matching is strict.** "indie pop" doesn't count as "pop", and "trap" doesn't count as "hip hop", so closely related songs earn nothing for genre.
+- **Uneven catalog.** Most genres have only one song, so a user with a less common favorite genre gets one strong match and then results that are effectively ranked by energy alone.
+- **One-sided acoustic preference.** Acoustic fans get a bonus, but users who prefer electronic or produced sound get nothing equivalent.
+- **Ignored features.** Valence and tempo aren't scored, so a sad song and a happy song with the same energy can score the same.
+- **Ties follow file order.** Songs with equal scores keep their CSV order, which slightly favors songs listed earlier.
+- **Made-up data.** Most of the songs were AI-generated, with values chosen to fit genre stereotypes (for example, all metal is high energy), so the system reflects those assumptions, not real listening data.
 
 ---
 

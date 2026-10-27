@@ -14,7 +14,6 @@ import random
 
 from recommender import load_songs, recommend_songs
 
-
 def make_random_profile(csv_path: str) -> dict:
     """Builds a realistic user profile by basing it on a randomly chosen song from the catalog."""
     with open(csv_path, newline="", encoding="utf-8") as f:
@@ -34,6 +33,9 @@ def make_random_profile(csv_path: str) -> dict:
 
 
 def main() -> None:
+    # debugging: set random seed for reproducibility
+    random.seed(42)
+
     songs = load_songs("data/songs.csv")
 
     # Random profile drawn from the genres and moods in songs.csv
