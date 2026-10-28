@@ -99,7 +99,7 @@ def score_song(user_prefs: Dict, song: Dict) -> Tuple[float, List[str]]:
         closeness = 1 - abs(song["energy"] - user_prefs["energy"])
         points = ENERGY_WEIGHT * closeness
         score += points
-        reasons.append(f"energy {song['energy']:.2f} is close to your target {user_prefs['energy']:.2f} (+{points:.2f})")
+        reasons.append(f"energy similarity: {song['energy']:.2f} vs your target {user_prefs['energy']:.2f} (+{points:.2f})")
 
     if user_prefs.get("likes_acoustic") and song["acousticness"] >= ACOUSTIC_THRESHOLD:
         score += ACOUSTIC_WEIGHT

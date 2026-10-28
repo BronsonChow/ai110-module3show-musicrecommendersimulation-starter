@@ -33,9 +33,6 @@ def make_random_profile(csv_path: str) -> dict:
 
 
 def main() -> None:
-    # debugging: set random seed for reproducibility
-    random.seed(42)
-
     songs = load_songs("data/songs.csv")
 
     # Random profile drawn from the genres and moods in songs.csv

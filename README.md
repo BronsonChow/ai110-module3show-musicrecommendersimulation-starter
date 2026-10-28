@@ -52,6 +52,13 @@ The weights keep the priority order fixed: a genre match always outweighs a mood
 
 `recommend_songs` scores every song in `data/songs.csv`, sorts them from highest to lowest score, and returns the top `k` (5 by default), each with its score and explanation. For testing, `main.py` builds a realistic random profile by copying the genre, mood and acoustic preference of a random song and shifting its energy by up to ±0.1.
 
+**Design consideration (not implemented):** `recommend_songs` could be shortened to a list comprehension plus `sorted(..., key=..., reverse=True)[:k]`, or use `heapq.nlargest(k, ...)` to find the top k without sorting the whole list. I kept the explicit loop for these reasons:
+
+- **Readability.** A plain loop with `append` and `.sort()` is easier to follow step by step, especially for readers new to Python.
+- **Same behavior.** Both versions produce the same ranking, and both keep tied songs in CSV order, so the change would only affect style.
+- **No speed benefit at this size.** `heapq.nlargest` only pays off with thousands of songs; with 50, sorting everything is instant.
+- **Easier to debug and extend.** A loop makes it simple to print scores or add filters, such as limiting songs per artist, without restructuring a comprehension.
+
 **Expected biases and limitations**
 
 - **Genre dominates.** A 3-point genre match outweighs everything else, so users keep getting their usual genre and rarely discover anything new. This is a small-scale version of a filter bubble.
